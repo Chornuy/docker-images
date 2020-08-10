@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-    google_ad_duplicator_celery:
+    celery_container:
         build: ./python-celery/python3.7-celery/development/.
         volumes: 
             - "./sand_box_projects/sandboxcelery:/var/app"
@@ -10,7 +10,7 @@ services:
             - GROUPID=$DOCKER_HOST_GID
             - USER_NAME=$DOCKER_HOST_USERNAME
         command: ["watchmedo", "auto-restart", "--directory=./", "--pattern=*.py", "--recursive", "--", "celery", "worker", "--app=google_ad_duplicator", "-Q google_create_audience" ]
-    madgicx_platform:
+    django_container:
         build: ./python-django/python3.6-django/development/.
         volumes: 
             - "./sand_box_projects/sandboxdjango:/var/app/project"
