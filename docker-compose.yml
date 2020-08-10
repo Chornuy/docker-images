@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+    google_ad_duplicator_celery:
+        build: ./python-celery/python3.7-celery/development/.
+        volumes: 
+            - "./sand_box_projects/sandboxcelery:/var/app"
+        environment:
+            - USERID=$DOCKER_HOST_ID
+            - GROUPID=$DOCKER_HOST_GID
+            - USER_NAME=$DOCKER_HOST_USERNAME
+        command: ["watchmedo", "auto-restart", "--directory=./", "--pattern=*.py", "--recursive", "--", "celery", "worker", "--app=google_ad_duplicator", "-Q google_create_audience" ]
+    madgicx_platform:
+        build: ./python-django/python3.6-django/development/.
+        volumes: 
+            - "./sand_box_projects/sandboxdjango:/var/app/project"
+        environment:
+            - USERID=$DOCKER_HOST_ID
+            - GROUPID=$DOCKER_HOST_GID
+            - USER_NAME=$DOCKER_HOST_USERNAME
+        command: ["python", "manage.py", "runserver", "0.0.0.0:8080" ]
+        ports: 
+            - "8080:8080"
+    db:
+        image: postgres
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASS: qw123321
+        ports:
+            - "5434:5432"
+        volumes:
+            - "service_db:/var/lib/postgresql"
+    rabbit_mq:
+        image: "rabbitmq:3-management"
+        environment:
+            RABBITMQ_ERLANG_COOKIE: SWQOKODSQALRPCLNMEQG
+            RABBITMQ_DEFAULT_USER: rabbitmq
+            RABBITMQ_DEFAULT_PASS: rabbitmq
+            RABBITMQ_DEFAULT_VHOST: rabbitmq
+        ports:
+            - "15672:15672"
+            - "5672:5672"
+
+volumes:
+  service_db:
+    driver: local
