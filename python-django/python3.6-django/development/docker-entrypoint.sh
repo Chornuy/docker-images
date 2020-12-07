@@ -25,7 +25,7 @@ fi
 
 
 if [ ! -d "/var/app/venv" ]; then
-    virtualenv -p python3.6 /var/venv
+    virtualenv -p python3.7 /var/venv
 fi
 
 if [ ! -d "/var/app/venv" ]; then
@@ -35,7 +35,7 @@ else
       echo "FOUND EXISTING VENV"
 fi
 
-BASH_PATH="/home/$USER_NAME/.bashrc"
+BASH_PATH="/home/${USER_NAME}/.bashrc"
 VIRTUAL_ENV=/var/venv/bin
 
 export PATH="$VIRTUAL_ENV:$PATH"
@@ -48,11 +48,27 @@ else
     echo "ALREADY MODIFYITED BASH"
 fi
 
+if ! grep -Fxq "PYTHONPATH=\"/var/app/project\"" $BASH_PATH; then
+    echo "/var/app/project" | tee -a $BASH_PATH
+    echo "MODIFY PATH VAIRIABLE"
+else
+    echo "ALREADY MODIFYITED BASH"
+fi
+
+
+export PATH="${VIRTUAL_ENV}:${PATH}"
+export PYTHONPATH="/var/app/project"
+
+. /home/${USER_NAME}/.bashrc
+
 if [ ! -e $CONTAINER_ALREADY_STARTED ]; then
     touch $CONTAINER_ALREADY_STARTED
     echo "-- First container startup --"
+    # su - $USER_NAME -c "/var/app/venv/bin/pip install --upgrade pip"
     su - $USER_NAME -c "/var/app/venv/bin/pip install --upgrade pip"
-    su - $USER_NAME -c ". /var/app/venv/bin/activate && pip install --no-cache-dir -r /var/app/project/requirements.txt"
+    su - $USER_NAME -c "pip install -r /var/app/project/requirements.txt"
+    
+    # su - $USER_NAME -c ". /var/app/venv/bin/activate && pip install --no-cache-dir -r /var/app/project/requirements.txt"
 else
     echo "-- Not first container startup --"
 fi
@@ -61,10 +77,13 @@ set -- gosu "$USER_NAME" "$@"
 
 
 su - $USER_NAME
-whoami
+
 echo "{$CURRENT_USER}"
 echo "$@"
+whoami
+
 # exec gosu "$USER_NAME" "/bin/bash && source sand_box_projects/google_ad_duplicator/venv/bin/activate && ${@}"
 # source /var/venv/bin/activate
-exec $@
+# exec $@
 
+exec "$@"

@@ -13,12 +13,14 @@ services:
     django_container:
         build: ./python-django/python3.6-django/development/.
         volumes: 
-            - "./sand_box_projects/sandboxdjango:/var/app/project"
+            - "./sand_box_projects/platform:/var/app/project"
         environment:
             - USERID=$DOCKER_HOST_ID
             - GROUPID=$DOCKER_HOST_GID
             - USER_NAME=$DOCKER_HOST_USERNAME
         command: ["python", "manage.py", "runserver", "0.0.0.0:8080" ]
+        command: ["/bin/sh", "-c", "while true; do sleep 2; df -h; done"]
+        # entrypoint: ./python-django/python3.6-django/development/docker-entrypoint.sh
         ports: 
             - "8080:8080"
     db:

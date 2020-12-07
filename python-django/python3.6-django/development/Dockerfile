@@ -1,4 +1,4 @@
-FROM python:3.6.9
+FROM python:3.7
 
 # Create a group and user to run our app
 ARG APP_USER=appuser
@@ -59,6 +59,9 @@ VOLUME /var/app/project
 # Uncomment after creating your docker-entrypoint.sh
 
 COPY ./docker-entrypoint.sh /docker-entrypoint 
-ENTRYPOINT ["/docker-entrypoint/docker-entrypoint.sh", "/docker-entrypoint/user-config.sh"]
+
+COPY ./user-config.sh /docker-entrypoint
+
+ENTRYPOINT ["/docker-entrypoint/docker-entrypoint.sh"]
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]

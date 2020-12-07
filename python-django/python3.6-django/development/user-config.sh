@@ -1,3 +1,6 @@
 whoami
+echo "CHILD SCRIPT"
 
-exec $@
+printenv
+
+# . /var/app/venv/bin/activate && exec $@
